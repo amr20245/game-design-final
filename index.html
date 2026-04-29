@@ -1,13 +1,556 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GameHub</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <!-- The Vite dev server will inject scripts here during development -->
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameHub Final Project</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #312e81, #0891b2);
+      color: white;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: min(1100px, 92%);
+      margin: auto;
+      padding: 30px 0;
+    }
+
+    .panel {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    h1 {
+      font-size: 48px;
+      margin: 0 0 10px;
+    }
+
+    h2 { margin-top: 0; }
+
+    .subtitle {
+      color: #cbd5e1;
+      font-size: 18px;
+    }
+
+    input {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 12px;
+      background: #06b6d4;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 6px;
+    }
+
+    button:hover {
+      background: #0891b2;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 25px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.12);
+      padding: 22px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      background: rgba(255,255,255,0.2);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .nav button {
+      background: #7c3aed;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .player-pill {
+      background: rgba(255,255,255,0.15);
+      padding: 10px 14px;
+      border-radius: 999px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 90px);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .square {
+      height: 90px;
+      font-size: 36px;
+      background: rgba(255,255,255,0.14);
+    }
+
+    .word-row {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .tile {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.15);
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .correct { background: #16a34a; }
+    .close { background: #ca8a04; }
+    .wrong { background: #475569; }
+
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 80px);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .memory-card {
+      height: 80px;
+      font-size: 30px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .room-box {
+      background: rgba(255,255,255,0.1);
+      padding: 18px;
+      border-radius: 18px;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 36px; }
+      .board { grid-template-columns: repeat(3, 70px); }
+      .square { height: 70px; }
+      .memory-grid { grid-template-columns: repeat(3, 70px); }
+      .memory-card { height: 70px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- HUB -->
+    <section id="hub" class="panel">
+      <p>🏆 Final Game Submission</p>
+      <h1>GameHub</h1>
+      <p class="subtitle">Developer: Amr Daraghmeh</p>
+
+      <label for="playerName">Player name</label><br />
+      <input id="playerName" placeholder="Enter your name" />
+      <button onclick="savePlayer()">Save Player</button>
+
+      <div class="grid">
+        <div class="card" onclick="showPage('rps')">
+          <h2>Rock Paper Scissors</h2>
+          <p>Play against the computer.</p>
+        </div>
+
+        <div class="card" onclick="showPage('tictactoe')">
+          <h2>Tic Tac Toe</h2>
+          <p>Includes multiplayer room UI.</p>
+        </div>
+
+        <div class="card" onclick="showPage('wordle')">
+          <h2>Wordle</h2>
+          <p>Guess the 5-letter word.</p>
+        </div>
+
+        <div class="card" onclick="showPage('memory')">
+          <h2>Memory Cards</h2>
+          <p>Flip and match all cards.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- RPS -->
+    <section id="rps" class="panel hidden">
+      <div class="nav">
+        <button onclick="showPage('hub')">← Back to Hub</button>
+        <span class="player-pill"></span>
+      </div>
+
+      <h1>Rock Paper Scissors</h1>
+      <p id="rpsResult">Choose your move.</p>
+
+      <button onclick="playRPS('Rock')">Rock</button>
+      <button onclick="playRPS('Paper')">Paper</button>
+      <button onclick="playRPS('Scissors')">Scissors</button>
+      <button onclick="resetRPS()">Reset Game</button>
+
+      <h2 id="rpsChoices"></h2>
+    </section>
+
+    <!-- TIC TAC TOE -->
+    <section id="tictactoe" class="panel hidden">
+      <div class="nav">
+        <button onclick="showPage('hub')">← Back to Hub</button>
+        <span class="player-pill"></span>
+      </div>
+
+      <h1>Tic Tac Toe</h1>
+
+      <div class="room-box">
+        <h2>Multiplayer Room</h2>
+        <p>This room UI is ready for the class game room API.</p>
+        <input id="roomInput" placeholder="Enter room code" />
+        <button onclick="createRoom()">Create Room</button>
+        <button onclick="joinRoom()">Join Room</button>
+        <p id="activeRoom">Active room: None</p>
+      </div>
+
+      <p id="tttStatus">Turn: X</p>
+      <div class="board" id="tttBoard"></div>
+      <button onclick="resetTTT()">Reset Game</button>
+    </section>
+
+    <!-- WORDLE -->
+    <section id="wordle" class="panel hidden">
+      <div class="nav">
+        <button onclick="showPage('hub')">← Back to Hub</button>
+        <span class="player-pill"></span>
+      </div>
+
+      <h1>Wordle</h1>
+      <p>Guess the 5-letter word. Answer is hidden.</p>
+
+      <input id="wordGuess" maxlength="5" placeholder="Type 5 letters" />
+      <button onclick="submitWord()">Submit Guess</button>
+      <button onclick="resetWordle()">Reset Game</button>
+
+      <div id="wordGrid"></div>
+      <h2 id="wordStatus">Keep guessing!</h2>
+    </section>
+
+    <!-- MEMORY -->
+    <section id="memory" class="panel hidden">
+      <div class="nav">
+        <button onclick="showPage('hub')">← Back to Hub</button>
+        <span class="player-pill"></span>
+      </div>
+
+      <h1>Memory Cards</h1>
+      <p>Match all card pairs.</p>
+
+      <div class="memory-grid" id="memoryGrid"></div>
+      <h2 id="memoryStatus">Find every match.</h2>
+      <button onclick="resetMemory()">Reset Game</button>
+    </section>
+
+  </div>
+
+  <script>
+    let playerName = localStorage.getItem("playerName") || "Guest";
+
+    function updatePlayerLabels() {
+      document.querySelectorAll(".player-pill").forEach(el => {
+        el.textContent = "Player: " + playerName;
+      });
+    }
+
+    function savePlayer() {
+      const input = document.getElementById("playerName");
+      playerName = input.value.trim() || "Guest";
+      localStorage.setItem("playerName", playerName);
+      updatePlayerLabels();
+      alert("Player saved: " + playerName);
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll("section").forEach(section => {
+        section.classList.add("hidden");
+      });
+
+      document.getElementById(pageId).classList.remove("hidden");
+      updatePlayerLabels();
+
+      if (pageId === "tictactoe") renderTTT();
+      if (pageId === "wordle") renderWordle();
+      if (pageId === "memory") renderMemory();
+    }
+
+    document.getElementById("playerName").value =
+      localStorage.getItem("playerName") || "";
+
+    updatePlayerLabels();
+
+    /* Rock Paper Scissors */
+    function playRPS(choice) {
+      const choices = ["Rock", "Paper", "Scissors"];
+      const cpu = choices[Math.floor(Math.random() * choices.length)];
+
+      let result = "Tie game!";
+      if (
+        (choice === "Rock" && cpu === "Scissors") ||
+        (choice === "Paper" && cpu === "Rock") ||
+        (choice === "Scissors" && cpu === "Paper")
+      ) {
+        result = "You win!";
+      } else if (choice !== cpu) {
+        result = "Computer wins!";
+      }
+
+      document.getElementById("rpsResult").textContent = result;
+      document.getElementById("rpsChoices").textContent =
+        "You chose " + choice + ". Computer chose " + cpu + ".";
+    }
+
+    function resetRPS() {
+      document.getElementById("rpsResult").textContent = "Choose your move.";
+      document.getElementById("rpsChoices").textContent = "";
+    }
+
+    /* Tic Tac Toe */
+    let tttBoard = ["", "", "", "", "", "", "", "", ""];
+    let tttTurn = "X";
+
+    function renderTTT() {
+      const board = document.getElementById("tttBoard");
+      board.innerHTML = "";
+
+      tttBoard.forEach((cell, index) => {
+        const btn = document.createElement("button");
+        btn.className = "square";
+        btn.textContent = cell;
+        btn.setAttribute("aria-label", "Square " + (index + 1));
+        btn.onclick = () => playTTT(index);
+        board.appendChild(btn);
+      });
+
+      updateTTTStatus();
+    }
+
+    function playTTT(index) {
+      if (tttBoard[index] || checkWinner()) return;
+
+      tttBoard[index] = tttTurn;
+      tttTurn = tttTurn === "X" ? "O" : "X";
+      renderTTT();
+    }
+
+    function checkWinner() {
+      const wins = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+
+      for (const [a,b,c] of wins) {
+        if (tttBoard[a] && tttBoard[a] === tttBoard[b] && tttBoard[a] === tttBoard[c]) {
+          return tttBoard[a];
+        }
+      }
+
+      if (tttBoard.every(Boolean)) return "Draw";
+      return null;
+    }
+
+    function updateTTTStatus() {
+      const winner = checkWinner();
+      const status = document.getElementById("tttStatus");
+
+      if (winner === "Draw") status.textContent = "Draw game!";
+      else if (winner) status.textContent = "Winner: " + winner;
+      else status.textContent = "Turn: " + tttTurn;
+    }
+
+    function resetTTT() {
+      tttBoard = ["", "", "", "", "", "", "", "", ""];
+      tttTurn = "X";
+      renderTTT();
+    }
+
+    function createRoom() {
+      const code = "ROOM-" + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById("roomInput").value = code;
+      document.getElementById("activeRoom").textContent = "Active room: " + code;
+    }
+
+    function joinRoom() {
+      const code = document.getElementById("roomInput").value.trim();
+      document.getElementById("activeRoom").textContent =
+        "Active room: " + (code || "None");
+    }
+
+    /* Wordle */
+    const answer = "REACT";
+    let guesses = [];
+
+    function submitWord() {
+      const input = document.getElementById("wordGuess");
+      const guess = input.value.toUpperCase();
+
+      if (guess.length !== 5) {
+        alert("Guess must be exactly 5 letters.");
+        return;
+      }
+
+      if (guesses.length >= 6 || guesses.includes(answer)) return;
+
+      guesses.push(guess);
+      input.value = "";
+      renderWordle();
+    }
+
+    function renderWordle() {
+      const grid = document.getElementById("wordGrid");
+      grid.innerHTML = "";
+
+      for (let row = 0; row < 6; row++) {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "word-row";
+
+        const word = guesses[row] || "";
+
+        for (let col = 0; col < 5; col++) {
+          const tile = document.createElement("span");
+          tile.className = "tile";
+
+          const letter = word[col] || "";
+          tile.textContent = letter;
+
+          if (letter) {
+            if (letter === answer[col]) tile.classList.add("correct");
+            else if (answer.includes(letter)) tile.classList.add("close");
+            else tile.classList.add("wrong");
+          }
+
+          rowDiv.appendChild(tile);
+        }
+
+        grid.appendChild(rowDiv);
+      }
+
+      const status = document.getElementById("wordStatus");
+
+      if (guesses.includes(answer)) status.textContent = "You guessed it!";
+      else if (guesses.length >= 6) status.textContent = "Game over. Answer: " + answer;
+      else status.textContent = "Keep guessing!";
+    }
+
+    function resetWordle() {
+      guesses = [];
+      document.getElementById("wordGuess").value = "";
+      renderWordle();
+    }
+
+    /* Memory */
+    const symbols = ["🎮", "🚀", "⭐", "🔥", "🎯", "👾"];
+    let memoryCards = [];
+    let selectedCards = [];
+
+    function shuffleCards() {
+      memoryCards = [...symbols, ...symbols]
+        .sort(() => Math.random() - 0.5)
+        .map((symbol, index) => ({
+          id: index,
+          symbol,
+          flipped: false,
+          matched: false
+        }));
+
+      selectedCards = [];
+    }
+
+    function renderMemory() {
+      const grid = document.getElementById("memoryGrid");
+      grid.innerHTML = "";
+
+      memoryCards.forEach(card => {
+        const btn = document.createElement("button");
+        btn.className = "memory-card";
+        btn.textContent = card.flipped || card.matched ? card.symbol : "?";
+        btn.onclick = () => flipCard(card.id);
+        grid.appendChild(btn);
+      });
+
+      const complete = memoryCards.length && memoryCards.every(card => card.matched);
+      document.getElementById("memoryStatus").textContent =
+        complete ? "You matched all cards!" : "Find every match.";
+    }
+
+    function flipCard(id) {
+      const card = memoryCards.find(c => c.id === id);
+
+      if (!card || card.flipped || card.matched || selectedCards.length === 2) return;
+
+      card.flipped = true;
+      selectedCards.push(card);
+      renderMemory();
+
+      if (selectedCards.length === 2) {
+        setTimeout(() => {
+          const [a, b] = selectedCards;
+
+          if (a.symbol === b.symbol) {
+            a.matched = true;
+            b.matched = true;
+          } else {
+            a.flipped = false;
+            b.flipped = false;
+          }
+
+          selectedCards = [];
+          renderMemory();
+        }, 700);
+      }
+    }
+
+    function resetMemory() {
+      shuffleCards();
+      renderMemory();
+    }
+
+    shuffleCards();
+    renderTTT();
+    renderWordle();
+    renderMemory();
+  </script>
+</body>
 </html>
